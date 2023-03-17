@@ -3,6 +3,8 @@ Based on the [Documentation](https://docs.0x.org/0x-swap-api/introduction), Maki
 ### https://api.0x.org/swap/v1/quote?buyToken=DAI&sellToken=WETH&sellAmount=100000000000000000
 will make the transaction happen.
 
+### https://tokens.coingecko.com/uniswap/all.json
+
 # Used technologies
 - create-react-app
 - WEB3
