@@ -20,7 +20,14 @@ interface IForm {
 }
 
 const METAMASK_METHODS = {
+  // Requests permission from the user to access their Ethereum accounts.
+  // Once the user approves the request, the method returns an array of the user's Ethereum accounts.
   request_accounts: "eth_requestAccounts",
+  // Returns an array of the user's Ethereum accounts without requesting permission.
+  // This method is only available if the user has already approved access to their accounts previously.
+  // If the user has not approved access, eth_accounts will return an empty array.
+  accounts: "eth_accounts"
+
 };
 
 const STRINGS = {
@@ -167,8 +174,37 @@ function IsWalletInstalled({
     });
   }
 
-  function onSwapClicked() {
+  async function getQuote(address : string) {
+    try {
+      const params: {
+        sellToken: string;
+        buyToken: string;
+        sellAmount: string;
+        takerAddress: string;
+      } = {
+        sellToken: form?.sourceToken?.address ?? "",
+        buyToken: form?.targetToken?.address ?? "",
+        sellAmount: String(
+          Number(form.sourceTokenValue) *
+            10 ** (form.sourceToken?.decimals ?? 0)
+        ),
+        takerAddress: address
+      };
 
+      // Fetch the swap price.
+      const priceResponse = await fetch(
+        addParamsToUrl(`https://api.0x.org/quote/v1/price`, params)
+      );
+      const swapQuoteJSON = await priceResponse.json();
+      return swapQuoteJSON;
+    } catch (error) {
+      console.error("something wrong with price api call!");
+      throw new Error("something went wrong...");
+    }
+  }
+
+  async function onSwapClicked() {
+    getQuote('')
   }
 
   if (!metamaskInstalled)
@@ -253,7 +289,6 @@ function App(): JSX.Element {
       <div className='hero-content text-center'>
         <div className='max-w-md'>
           <div className='mockup-window border border-base-300'>
-            {/* <div className="flex justify-center px-4 py-16 bg-base-200">Hello!</div> */}
             <div className='flex flex-col justify-center px-4 py-16 border-t border-base-300'>
               <h1 className='text-5xl font-bold'>Hello there</h1>
               <p className='py-6'>
